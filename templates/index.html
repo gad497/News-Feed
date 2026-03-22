@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>News Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            margin: 0;
+        }
+
+        .card a {
+            text-decoration: none;
+            color: #1a73e8;
+        }
+
+        .date {
+            font-size: 12px;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Local : ["Udupi", "Mangaluru", "Kundapura", "Brahmavara"] (Daijiworld)</h1>
+
+{% for art in local %}
+<div class="card">
+    <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
+    <p class="date">{{ art.published }}</p>
+</div>
+{% endfor %}
+
+<h1>State : Top 10 (The Hindu)</h1>
+
+{% for art in state %}
+<div class="card">
+    <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
+    <p class="date">{{ art.published }}</p>
+</div>
+{% endfor %}
+
+<h1>National : Top 10 (The Hindu)</h1>
+
+{% for art in national %}
+<div class="card">
+    <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
+    <p class="date">{{ art.published }}</p>
+</div>
+{% endfor %}
+
+<h1>International : Top 10 (The Hindu)</h1>
+
+{% for art in international %}
+<div class="card">
+    <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
+    <p class="date">{{ art.published }}</p>
+</div>
+{% endfor %}
+
+</body>
+</html>
