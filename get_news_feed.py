@@ -50,10 +50,19 @@ def fetch_and_print():
 
 @app.route("/")
 def home():
-    articles = fetch_rss("https://www.daijiworld.com/rssfeed/rssfeed.xml")
+    local_feeds = {
+        "Daiji World": "https://www.daijiworld.com/rssfeed/rssfeed.xml",
+        "The Hindu": "https://www.thehindu.com/news/cities/Mangalore/feeder/default.rss"
+    }
+    all_articles = []
+    for name, url in local_feeds.items():
+        articles = fetch_rss(url)
+        all_articles.extend(articles)
+
+    filters = ["Udupi", "Mangaluru", "Kundapura", "Brahmavara"]
     filtered_articles = []
-    for entry in articles:
-        if any(keyword in entry["title"] for keyword in ["Udupi", "Mangaluru", "Kundapura", "Brahmavara"]):
+    for entry in all_articles:
+        if any(keyword in entry.get("title", "") for keyword in filters):
             filtered_articles.append(entry)
 
     feeds = {
@@ -69,9 +78,6 @@ def home():
 
     return render_template("index.html", local=filtered_articles, state=top_articles[0], national=top_articles[1],
                            international=top_articles[2])
-    # url = "https://www.thehindu.com/news/national/karnataka/feeder/default.rss"
-    # articles = fetch_rss(url)
-    # return render_template("index.html", articles=articles)
 
 
 
