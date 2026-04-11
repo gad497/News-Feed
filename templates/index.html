@@ -21,7 +21,7 @@
             margin: 0;
         }
 
-        .card a {
+        .card a:hover {
             text-decoration: none;
             color: #1a73e8;
         }
@@ -30,45 +30,94 @@
             font-size: 12px;
             color: gray;
         }
+        summary {
+            cursor: pointer;
+        }
+        summary:hover {
+            color: #1a73e8;
+        }
+        .date-heading {
+            cursor: pointer;
+        }
+        details details {
+            margin-left: 20px;
+        }
     </style>
 </head>
 <body>
 
 <h1>Local : ["Udupi", "Mangaluru", "Kundapura", "Brahmavara"] (Daijiworld, The Hindu)</h1>
 
-{% for art in local %}
-<div class="card">
-    <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
-    <p class="date">{{ art.published }}</p>
-</div>
-{% endfor %}
+<details open>
+    <summary><strong>Toggle Local</strong></summary>
+    {% for date, articles in local.items() %}
 
-<h1>State : Top 10 (The Hindu)</h1>
+    <details {% if loop.first %}open{% endif %}>
+        <summary class="date-heading">{{ date }}</summary>
+<!--        <h2 class="date-heading">{{ date }}</h2>-->
+        {% for art in articles %}
+        <div class="card">
+            <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
+            <p class="date">{{ art.published }}</p>
+        </div>
+        {% endfor %}
+    </details>
+    {% endfor %}
+</details>
 
-{% for art in state %}
-<div class="card">
-    <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
-    <p class="date">{{ art.published }}</p>
-</div>
-{% endfor %}
+<h1>State : (The Hindu)</h1>
 
-<h1>National : Top 10 (The Hindu)</h1>
+<details open>
+    <summary><strong>Toggle State News</strong></summary>
+    {% for date, articles in state.items() %}
+<!--    <h2 class="date-heading">{{ date }}</h2>-->
+    <details {% if loop.first %}open{% endif %}>
+        <summary class="date-heading">{{ date }}</summary>
+        {% for art in articles %}
+        <div class="card">
+            <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
+            <p class="date">{{ art.published }}</p>
+        </div>
+        {% endfor %}
+    </details>
+    {% endfor %}
+</details>
 
-{% for art in national %}
-<div class="card">
-    <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
-    <p class="date">{{ art.published }}</p>
-</div>
-{% endfor %}
+<h1>National : (The Hindu)</h1>
 
-<h1>International : Top 10 (The Hindu)</h1>
+<details open>
+    <summary><strong>Toggle National News</strong></summary>
+    {% for date, articles in national.items() %}
+<!--    <h2 class="date-heading">{{ date }}</h2>-->
+    <details {% if loop.first %}open{% endif %}>
+        <summary class="date-heading">{{ date }}</summary>
+        {% for art in articles %}
+        <div class="card">
+            <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
+            <p class="date">{{ art.published }}</p>
+        </div>
+        {% endfor %}
+    </details>
+    {% endfor %}
+</details>
 
-{% for art in international %}
-<div class="card">
-    <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
-    <p class="date">{{ art.published }}</p>
-</div>
-{% endfor %}
+<h1>International : (The Hindu)</h1>
+
+<details open>
+    <summary><strong>Toggle International News</strong></summary>
+    {% for date, articles in international.items() %}
+<!--    <h2 class="date-heading">{{ date }}</h2>-->
+    <details {% if loop.first %}open{% endif %}>
+        <summary class="date-heading">{{ date }}</summary>
+        {% for art in articles %}
+        <div class="card">
+            <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
+            <p class="date">{{ art.published }}</p>
+        </div>
+        {% endfor %}
+    </details>
+    {% endfor %}
+</details>
 
 </body>
 </html>
