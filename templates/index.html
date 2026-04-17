@@ -2,122 +2,279 @@
 <html>
 <head>
     <title>News Dashboard</title>
+    <!-- <link rel="icon" type="image/png" href="/static/newsdash.png"> -->
     <style>
+        :root {
+            --bg: #f1f3f6;
+            --text: #222;
+            --card: #ffffff;
+            --muted: #777;
+            --accent: #1a73e8;
+            --shadow: rgba(0,0,0,0.08);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #121212;
+                --text: #e0e0e0;
+                --card: #1e1e1e;
+                --muted: #aaa;
+                --accent: #4c8bf5;
+                --shadow: rgba(0,0,0,0.4);
+            }
+        }
+
+        body.light {
+            --bg: #f1f3f6;
+            --text: #222;
+            --card: #ffffff;
+            --muted: #777;
+            --accent: #1a73e8;
+            --shadow: rgba(0,0,0,0.08);
+        }
+
+        body.dark {
+            --bg: #121212;
+            --text: #e0e0e0;
+            --card: #1e1e1e;
+            --muted: #aaa;
+            --accent: #4c8bf5;
+            --shadow: rgba(0,0,0,0.4);
+        }
+
         body {
-            font-family: Arial;
-            background: #f5f5f5;
+            font-family: 'Segoe UI', Arial;
+            background: var(--bg);
+            color: var(--text);
             padding: 20px;
-        }
-
-        .card {
-            background: white;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .card h3 {
             margin: 0;
         }
 
-        .card a:hover {
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .theme-toggle {
+            background: var(--card);
+            border: 1px solid var(--shadow);
+            padding: 6px;
+            border-radius: 20px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .theme-toggle button {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 12px;
+        }
+
+        .theme-toggle button.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* SECTION HEADER */
+        .section-summary {
+            list-style: none;
+            cursor: pointer;
+        }
+
+        .section-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .section-summary h1 {
+            margin: 0;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background: var(--card);
+            box-shadow: 0 2px 6px var(--shadow);
+            font-size: 22px;
+        }
+
+        .section-summary:hover h1 {
+            background: color-mix(in srgb, var(--accent) 10%, var(--card));
+        }
+
+        .section-summary::after {
+            content: "▾";
+            float: right;
+            margin-top: -28px;
+            margin-right: 15px;
+            transition: 0.2s;
+        }
+
+        details[open] > .section-summary::after {
+            transform: rotate(180deg);
+        }
+
+        /* DATE DROPDOWN */
+        .date-selector {
+            margin: 10px 0;
+        }
+
+        .date-selector select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--shadow);
+            background: var(--card);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        /* GRID */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        /* CARD */
+        .card-link {
             text-decoration: none;
-            color: #1a73e8;
+            color: inherit;
+            display: block;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--shadow);
+            transition: 0.25s;
+        }
+
+        .card:hover {
+            background: color-mix(in srgb, var(--accent) 12%, var(--card));
+            transform: translateY(-5px);
+        }
+
+        body.dark .card:hover {
+            background: color-mix(in srgb, var(--accent) 20%, var(--card));
+        }
+
+        .card-link:visited .card {
+            opacity: 0.7;
+        }
+
+        .card-link.visited .card {
+            opacity: 0.6;
+            background: rgba(128,128,128,0.1);
+        }
+
+        .card h3 {
+            margin: 0 0 8px;
+            font-size: 16px;
         }
 
         .date {
             font-size: 12px;
-            color: gray;
+            color: var(--muted);
         }
-        summary {
-            cursor: pointer;
+
+        @media (max-width: 1200px) {
+            .news-grid { grid-template-columns: repeat(3, 1fr); }
         }
-        summary:hover {
-            color: #1a73e8;
+        @media (max-width: 900px) {
+            .news-grid { grid-template-columns: repeat(2, 1fr); }
         }
-        .date-heading {
-            cursor: pointer;
-        }
-        details details {
-            margin-left: 20px;
+        @media (max-width: 600px) {
+            .news-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<h1>Local : ["Udupi", "Mangaluru", "Kundapura", "Brahmavara"] (Daijiworld, The Hindu)</h1>
+<div class="top-bar">
+    <div class="theme-toggle">
+        <button onclick="setTheme('system')" id="systemBtn">System</button>
+        <button onclick="setTheme('light')" id="lightBtn">Light</button>
+        <button onclick="setTheme('dark')" id="darkBtn">Dark</button>
+    </div>
+</div>
 
+<!-- FUNCTION TEMPLATE -->
+{% macro section(name, data, prefix) %}
 <details open>
-    <summary><strong>Toggle Local</strong></summary>
-    {% for date, articles in local.items() %}
+    <summary class="section-summary"><h1>{{ name }}</h1></summary>
 
-    <details {% if loop.first %}open{% endif %}>
-        <summary class="date-heading">{{ date }}</summary>
-<!--        <h2 class="date-heading">{{ date }}</h2>-->
-        {% for art in articles %}
-        <div class="card">
-            <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
-            <p class="date">{{ art.published }}</p>
+    <div class="date-selector">
+        <select onchange="changeDate(this, '{{ prefix }}')">
+            {% for date, articles in data.items() %}
+            <option value="{{ prefix }}-{{ loop.index0 }}" {% if loop.first %}selected{% endif %}>
+                {{ date }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    {% for date, articles in data.items() %}
+    <div id="{{ prefix }}-{{ loop.index0 }}" {% if not loop.first %}style="display:none"{% endif %}>
+        <div class="news-grid">
+            {% for art in articles %}
+            <a href="{{ art.link }}" target="_blank" class="card-link">
+                <div class="card">
+                    <h3>{{ art.title }}</h3>
+                    <p class="date">{{ art.published }}</p>
+                </div>
+            </a>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </details>
+    </div>
     {% endfor %}
 </details>
+{% endmacro %}
 
-<h1>State : (The Hindu)</h1>
+{{ section('Local', local, 'local') }}
+{{ section('State', state, 'state') }}
+{{ section('National', national, 'national') }}
+{{ section('International', international, 'international') }}
 
-<details open>
-    <summary><strong>Toggle State News</strong></summary>
-    {% for date, articles in state.items() %}
-<!--    <h2 class="date-heading">{{ date }}</h2>-->
-    <details {% if loop.first %}open{% endif %}>
-        <summary class="date-heading">{{ date }}</summary>
-        {% for art in articles %}
-        <div class="card">
-            <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
-            <p class="date">{{ art.published }}</p>
-        </div>
-        {% endfor %}
-    </details>
-    {% endfor %}
-</details>
+<script>
+function setTheme(theme) {
+    document.body.classList.remove('light', 'dark');
+    if (theme === 'light') document.body.classList.add('light');
+    if (theme === 'dark') document.body.classList.add('dark');
+    localStorage.setItem('theme', theme);
+    updateActive(theme);
+}
 
-<h1>National : (The Hindu)</h1>
+function updateActive(theme) {
+    document.querySelectorAll('.theme-toggle button')
+        .forEach(btn => btn.classList.remove('active'));
+    document.getElementById(theme + 'Btn').classList.add('active');
+}
 
-<details open>
-    <summary><strong>Toggle National News</strong></summary>
-    {% for date, articles in national.items() %}
-<!--    <h2 class="date-heading">{{ date }}</h2>-->
-    <details {% if loop.first %}open{% endif %}>
-        <summary class="date-heading">{{ date }}</summary>
-        {% for art in articles %}
-        <div class="card">
-            <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
-            <p class="date">{{ art.published }}</p>
-        </div>
-        {% endfor %}
-    </details>
-    {% endfor %}
-</details>
+function loadTheme() {
+    const saved = localStorage.getItem('theme') || 'system';
+    if (saved !== 'system') document.body.classList.add(saved);
+    updateActive(saved);
+}
 
-<h1>International : (The Hindu)</h1>
+/* DATE SWITCH */
+function changeDate(select, prefix) {
+    const value = select.value;
+    document.querySelectorAll(`[id^="${prefix}-"]`).forEach(el => el.style.display = 'none');
+    document.getElementById(value).style.display = 'block';
+}
 
-<details open>
-    <summary><strong>Toggle International News</strong></summary>
-    {% for date, articles in international.items() %}
-<!--    <h2 class="date-heading">{{ date }}</h2>-->
-    <details {% if loop.first %}open{% endif %}>
-        <summary class="date-heading">{{ date }}</summary>
-        {% for art in articles %}
-        <div class="card">
-            <h3><a href="{{ art.link }}" target="_blank">{{ art.title }}</a></h3>
-            <p class="date">{{ art.published }}</p>
-        </div>
-        {% endfor %}
-    </details>
-    {% endfor %}
-</details>
+/* VISITED TRACKING */
+document.querySelectorAll('.card-link').forEach(link => {
+    if (localStorage.getItem(link.href)) {
+        link.classList.add('visited');
+    }
+    link.addEventListener('click', () => {
+        localStorage.setItem(link.href, 'visited');
+    });
+});
+
+loadTheme();
+</script>
 
 </body>
 </html>
